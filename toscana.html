@@ -3,83 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reindirizzamento Agenda Faitango</title>
+    <title>Filtro Agenda Faitango</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
         }
         .container {
             text-align: center;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 12px;
             background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            max-width: 400px;
+            width: 90%;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #0071e3;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #0077ed;
         }
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0071e3;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            width: 30px;
+            height: 30px;
+            animation: spin 0.8s linear infinite;
             margin: 20px auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        a {
-            color: #3498db;
-            text-decoration: none;
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Generazione filtro eventi in corso...</h2>
-    <p>Verrai reindirizzato all'agenda Faitango con le date aggiornate a partire da oggi per un mese.</p>
-    <div class="loader"></div>
-    <p>Se non vieni reindirizzato, <a id="fallback-link" href="#">clicca qui</a>.</p>
+    <h2>Generazione Filtro...</h2>
+    <p>Calcolo date da oggi per un mese in corso.</p>
+    <div id="loading-zone">
+        <div class="loader"></div>
+        <p style="font-size: 14px; color: #86868b;">Verrai reindirizzato automaticamente...</p>
+    </div>
+    <a id="tango-link" class="btn" style="display: none;" href="#">Apri Agenda Faitango</a>
 </div>
 
 <script>
-    function formatDate(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}%2F${month}%2F${year}`;
+    function getFaitangoUrl() {
+        const oggi = new Date();
+        const traUnMese = new Date();
+        traUnMese.setMonth(oggi.getMonth() + 1);
+
+        const format = (d) => {
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}%2F${month}%2F${year}`;
+        };
+
+        const dataInizio = format(oggi);
+        const dataFine = format(traUnMese);
+        
+        const baseUrl = "https://faitango.it";
+        const queryParams = `?f%5BtE%5D%5B1%5D=1&f%5BtE%5D%5B3%5D=3&f%5BtE%5D%5B4%5D=4&f%5BtE%5D%5B5%5D=5&f%5BtE%5D%5B6%5D=6&f%5BtE%5D%5B7%5D=7&f%5BtE%5D%5B8%5D=8&f%5BtE%5D%5B9%5D=9&f%5BtE%5D%5B10%5D=10&f%5BgS%5D=1&f%5BgP%5D%5B%5D=89&f%5BgP%5D%5B%5D=90&f%5BgP%5D%5B%5D=97&f%5BgP%5D%5B%5D=96&f%5BgP%5D%5B%5D=98&f%5BdT%5D%5B0%5D=${dataInizio}&f%5BdT%5D%5B1%5D=${dataFine}&f%5Bo%5D%5Bd%5D=0&f%5Bo%5D%5Bc%5D=1642&f%5BtT%5D=&sa=1`;
+        
+        return baseUrl + queryParams;
     }
 
-    // 1. Calcola la data corrente (oggi)
-    const oggi = new Date();
-
-    // 2. Calcola la data tra un mese esatto
-    const traUnMese = new Date();
-    traUnMese.setMonth(oggi.getMonth() + 1);
-
-    // Formatta le date per l'URL (DD%2FMM%2FYYYY)
-    const dataInizio = formatDate(oggi);
-    const dataFine = formatDate(traUnMese);
-
-    // 3. Costruisci l'URL dinamico mantenendo i tuoi filtri intatti
-    const baseUrl = "https://www.faitango.it/agenda-eventi";
-    const queryParams = `?f%5BtE%5D%5B1%5D=1&f%5BtE%5D%5B3%5D=3&f%5BtE%5D%5B4%5D=4&f%5BtE%5D%5B5%5D=5&f%5BtE%5D%5B6%5D=6&f%5BtE%5D%5B7%5D=7&f%5BtE%5D%5B8%5D=8&f%5BtE%5D%5B9%5D=9&f%5BtE%5D%5B10%5D=10&f%5BgS%5D=1&f%5BgP%5D%5B%5D=89&f%5BgP%5D%5B%5D=90&f%5BgP%5D%5B%5D=97&f%5BgP%5D%5B%5D=96&f%5BgP%5D%5B%5D=98&f%5BdT%5D%5B0%5D=${dataInizio}&f%5BdT%5D%5B1%5D=${dataFine}&f%5Bo%5D%5Bd%5D=0&f%5Bo%5D%5Bc%5D=1642&f%5BtT%5D=&sa=1`;
-    
-    const finalUrl = baseUrl + queryParams;
-
-    // Configura il link di emergenza
-    document.getElementById('fallback-link').href = finalUrl;
-
-    // 4. Esegui il reindirizzamento automatico
-    window.location.href = finalUrl;
+    try {
+        const finalUrl = getFaitangoUrl();
+        const linkBtn = document.getElementById('tango-link');
+        linkBtn.href = finalUrl;
+        
+        // Prova il reindirizzamento automatico immediato
+        window.location.replace(finalUrl);
+        
+        // Se il browser blocca il reindirizzamento automatico, mostra il bottone dopo 1.5 secondi
+        setTimeout(() => {
+            document.getElementById('loading-zone').style.display = 'none';
+            linkBtn.style.display = 'inline-block';
+        }, 1500);
+        
+    } catch (e) {
+        console.error(e);
+        // Fallback di emergenza sul bottone in caso di errore JS
+        document.getElementById('loading-zone').style.display = 'none';
+        const linkBtn = document.getElementById('tango-link');
+        linkBtn.style.display = 'inline-block';
+    }
 </script>
 
 </body>
